@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS Serverless Spring Boot 2 API - org.example::spring-serverless-crud-api
+Globals:
+  Api:
+    EndpointConfiguration: REGIONAL
+
+Resources:
+  SpringServerlessCrudApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: org.example.StreamLambdaHandler::handleRequest
+      Runtime: java25
+      CodeUri: .
+      MemorySize: 512
+      Policies: AWSLambdaBasicExecutionRole
+      Timeout: 30
+      Environment:
+        Variables:
+          S3_BUCKET: your-bucket-name
+          S3_REGION: ap-south-1
+      Events:
+        ProxyResource:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: any
+
+Outputs:
+  SpringServerlessCrudApiApi:
+    Description: URL for application
+    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/ping'
+    Export:
+      Name: SpringServerlessCrudApiApi
