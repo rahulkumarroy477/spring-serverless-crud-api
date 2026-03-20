@@ -9,7 +9,7 @@ A serverless REST API built with Spring Boot 4, deployed on AWS Lambda via API G
 - Deployed as a single Lambda function behind API Gateway
 
 ## API Endpoints
-
+https://pcpoprrxvj.execute-api.ap-south-1.amazonaws.com/dev
 ### Courses (`/courses`)
 
 | Method | Endpoint | Description |

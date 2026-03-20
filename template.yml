@@ -12,9 +12,11 @@ Resources:
       Handler: org.example.StreamLambdaHandler::handleRequest
       Runtime: java25
       CodeUri: .
-      MemorySize: 512
+      MemorySize: 1024
       Policies: AWSLambdaBasicExecutionRole
       Timeout: 30
+      SnapStart:
+        ApplyOn: PublishedVersions
       Environment:
         Variables:
           S3_BUCKET: your-bucket-name

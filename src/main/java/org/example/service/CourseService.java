@@ -42,11 +42,11 @@ public class CourseService {
         return courses;
     }
 
-    public Optional<Course> getById(int id) {
-        return courses.stream().filter(c -> c.getId() == id).findFirst();
+    public Optional<Course> getById(String id) {
+        return courses.stream().filter(c -> id.equals(c.getId())).findFirst();
     }
 
-    public Optional<Course> update(int id, Course updated) {
+    public Optional<Course> update(String id, Course updated) {
         Optional<Course> result = getById(id).map(existing -> {
             existing.setName(updated.getName());
             existing.setPrice(updated.getPrice());
@@ -56,8 +56,8 @@ public class CourseService {
         return result;
     }
 
-    public boolean delete(int id) {
-        boolean removed = courses.removeIf(c -> c.getId() == id);
+    public boolean delete(String id) {
+        boolean removed = courses.removeIf(c -> id.equals(c.getId()));
         if (removed) saveToS3();
         return removed;
     }
