@@ -6,6 +6,8 @@ import org.example.dto.CourseAction;
 import org.example.dto.CourseEvent;
 import org.example.service.CourseService;
 import org.example.service.SqsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/courses")
 public class CourseController {
+
+    private static final Logger log = LoggerFactory.getLogger(CourseController.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -28,6 +32,7 @@ public class CourseController {
 
     @PostMapping
     public ResponseEntity<String> addCourse(@Valid @RequestBody Course course) throws Exception{
+        log.info("Sending CREATE event to SQS for course: {}", course.getName());
         sqsService.sendMessage(objectMapper.writeValueAsString(new CourseEvent(CourseAction.CREATE, course)));
         return ResponseEntity.accepted().body("Course created successfully");
     }
@@ -47,6 +52,7 @@ public class CourseController {
     @PutMapping("/{id}")
     public ResponseEntity<String> updateCourse(@PathVariable String id, @Valid @RequestBody Course course) throws Exception{
         course.setId(id);
+        log.info("Sending UPDATE event to SQS for course: {}", id);
         sqsService.sendMessage(objectMapper.writeValueAsString(new CourseEvent(CourseAction.UPDATE, course)));
         return ResponseEntity.accepted().body("Course updated successfully");
     }
@@ -55,6 +61,7 @@ public class CourseController {
     public ResponseEntity<String> deleteCourse(@PathVariable String id) throws Exception{
         Course course = new Course();
         course.setId(id);
+        log.info("Sending DELETE event to SQS for course: {}", id);
         sqsService.sendMessage(objectMapper.writeValueAsString(new CourseEvent(CourseAction.DELETE, course)));
         return ResponseEntity.accepted().body("Course deleted successfully");
     }

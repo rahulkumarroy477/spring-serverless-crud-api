@@ -13,20 +13,53 @@ Resources:
       Runtime: java25
       CodeUri: .
       MemorySize: 1024
-      Policies: AWSLambdaBasicExecutionRole
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt CourseEventsQueue.QueueName
       Timeout: 30
       SnapStart:
         ApplyOn: PublishedVersions
       Environment:
         Variables:
-          S3_BUCKET: your-bucket-name
+          S3_BUCKET: raahhuul-spring-boot-test
           S3_REGION: ap-south-1
+          SQS_QUEUE_URL: !Ref CourseEventsQueue
       Events:
         ProxyResource:
           Type: Api
           Properties:
             Path: /{proxy+}
             Method: any
+
+  SqsConsumerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: org.example.SqsConsumerHandler::handleRequest
+      Runtime: java25
+      CodeUri: .
+      MemorySize: 512
+      Timeout: 30
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - S3CrudPolicy:
+            BucketName: raahhuul-spring-boot-test
+      Environment:
+        Variables:
+          S3_BUCKET: raahhuul-spring-boot-test
+          S3_REGION: ap-south-1
+      Events:
+        SqsEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt CourseEventsQueue.Arn
+            BatchSize: 5
+
+  CourseEventsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: CourseEventQueue
+      VisibilityTimeout: 60
 
 Outputs:
   SpringServerlessCrudApiApi:
